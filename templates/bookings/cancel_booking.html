@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Cancella Prenotazione - TicketBooking{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-6">
+                <div class="card">
+                    <div class="card-body text-center py-5">
+                        <i class="fas fa-exclamation-triangle fa-4x text-warning mb-4"></i>
+                        
+                        <h2 class="h3 mb-4">Conferma Cancellazione</h2>
+                        
+                        <p class="lead mb-4">
+                            Sei sicuro di voler cancellare la prenotazione <strong>{{ booking.booking_code }}</strong>?
+                        </p>
+                        
+                        <!-- Booking Details -->
+                        <div class="bg-light rounded p-4 mb-4 text-start">
+                            <h5 class="mb-3">Dettagli Prenotazione</h5>
+                            
+                            <div class="mb-3">
+                                <strong>Evento:</strong><br>
+                                {{ booking.event.title }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Data:</strong><br>
+                                {{ booking.event.date|date:"d F Y" }} alle {{ booking.event.date|date:"H:i" }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Luogo:</strong><br>
+                                {{ booking.event.venue }}, {{ booking.event.city }}
+                            </div>
+                            
+                            <div class="mb-3">
+                                <strong>Biglietti:</strong><br>
+                                {% for item in booking.items.all %}
+                                    {{ item.quantity }} x {{ item.ticket.name }}<br>
+                                {% endfor %}
+                            </div>
+                            
+                            <div>
+                                <strong>Totale:</strong><br>
+                                <span class="h5 text-primary">€{{ booking.total_amount }}</span>
+                            </div>
+                        </div>
+                        
+                        {% if booking.status == 'confirmed' %}
+                        <div class="alert alert-info">
+                            <i class="fas fa-info-circle me-2"></i>
+                            <strong>Nota:</strong> La cancellazione di questa prenotazione confermata 
+                            libererà i biglietti per altri utenti.
+                        </div>
+                        {% endif %}
+                        
+                        <p class="text-danger mb-4">
+                            <strong>Attenzione:</strong> Questa azione non può essere annullata.
+                        </p>
+                        
+                        <!-- Action Buttons -->
+                        <form method="post" class="d-inline">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-lg me-2">
+                                <i class="fas fa-times me-2"></i>Sì, Cancella Prenotazione
+                            </button>
+                        </form>
+                        
+                        <a href="{% url 'booking_detail' booking.booking_code %}" class="btn btn-outline-secondary btn-lg">
+                            <i class="fas fa-arrow-left me-2"></i>No, Torna Indietro
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

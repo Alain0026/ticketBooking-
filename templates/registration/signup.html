@@ -1,0 +1,304 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Registrati - TicketBooking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .auth-container {
+        min-height: calc(100vh - 200px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 0;
+    }
+    
+    .auth-card {
+        max-width: 500px;
+        width: 100%;
+        background: white;
+        border-radius: 1rem;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+        overflow: hidden;
+    }
+    
+    .auth-header {
+        background: var(--gradient-primary);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+    
+    .auth-body {
+        padding: 2rem;
+    }
+    
+    .form-control:focus {
+        border-color: var(--primary-color);
+        box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    }
+    
+    .password-strength {
+        height: 5px;
+        background: #e5e7eb;
+        border-radius: 3px;
+        margin-top: 0.5rem;
+        overflow: hidden;
+    }
+    
+    .password-strength-bar {
+        height: 100%;
+        transition: all 0.3s ease;
+        width: 0%;
+    }
+    
+    .strength-weak {
+        background: #ef4444;
+        width: 33%;
+    }
+    
+    .strength-medium {
+        background: #f59e0b;
+        width: 66%;
+    }
+    
+    .strength-strong {
+        background: #10b981;
+        width: 100%;
+    }
+    
+    .requirements-list {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+    
+    .requirement {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .requirement.met {
+        color: #10b981;
+    }
+    
+    .requirement i {
+        font-size: 0.75rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="auth-container">
+    <div class="auth-card fade-in">
+        <div class="auth-header">
+            <i class="fas fa-user-plus fa-3x mb-3"></i>
+            <h3 class="mb-0">Crea il tuo Account</h3>
+            <p class="mb-0 mt-2">Unisciti a TicketBooking e prenota i tuoi eventi preferiti</p>
+        </div>
+        
+        <div class="auth-body">
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+            
+            <!-- Registration Form -->
+            <form method="post" id="signupForm">
+                {% csrf_token %}
+                
+                <div class="row">
+                    <div class="col-md-6 mb-3">
+                        <label for="id_first_name" class="form-label">Nome</label>
+                        <input type="text" name="first_name" class="form-control" id="id_first_name" 
+                               placeholder="Il tuo nome" required>
+                    </div>
+                    
+                    <div class="col-md-6 mb-3">
+                        <label for="id_last_name" class="form-label">Cognome</label>
+                        <input type="text" name="last_name" class="form-control" id="id_last_name" 
+                               placeholder="Il tuo cognome" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Username</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-user"></i>
+                        </span>
+                        <input type="text" name="username" class="form-control" id="id_username" 
+                               placeholder="Scegli un username" required>
+                    </div>
+                    <small class="text-muted">Minimo 3 caratteri, solo lettere, numeri e underscore</small>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_email" class="form-label">Email</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-envelope"></i>
+                        </span>
+                        <input type="email" name="email" class="form-control" id="id_email" 
+                               placeholder="La tua email" required>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_password1" class="form-label">Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password1" class="form-control" id="id_password1" 
+                               placeholder="Crea una password sicura" required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword1">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                    <div class="password-strength">
+                        <div class="password-strength-bar" id="strengthBar"></div>
+                    </div>
+                    <div class="requirements-list" id="requirements">
+                        <div class="requirement" data-req="length">
+                            <i class="fas fa-circle"></i>
+                            Almeno 8 caratteri
+                        </div>
+                        <div class="requirement" data-req="uppercase">
+                            <i class="fas fa-circle"></i>
+                            Una lettera maiuscola
+                        </div>
+                        <div class="requirement" data-req="number">
+                            <i class="fas fa-circle"></i>
+                            Un numero
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="mb-3">
+                    <label for="id_password2" class="form-label">Conferma Password</label>
+                    <div class="input-group">
+                        <span class="input-group-text">
+                            <i class="fas fa-lock"></i>
+                        </span>
+                        <input type="password" name="password2" class="form-control" id="id_password2" 
+                               placeholder="Ripeti la password" required>
+                        <button class="btn btn-outline-secondary" type="button" id="togglePassword2">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="form-check mb-4">
+                    <input class="form-check-input" type="checkbox" id="terms" required>
+                    <label class="form-check-label" for="terms">
+                        Accetto i <a href="#" target="_blank">termini e condizioni</a> e la 
+                        <a href="#" target="_blank">privacy policy</a>
+                    </label>
+                </div>
+                
+                <button type="submit" class="btn btn-primary btn-lg w-100 mb-3" id="submitBtn">
+                    <i class="fas fa-user-plus me-2"></i>Crea Account
+                </button>
+                
+                <p class="text-center mb-0">
+                    Hai già un account? 
+                    <a href="{% url 'login' %}" class="text-primary fw-bold">Accedi qui</a>
+                </p>
+            </form>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle password visibility
+    function setupPasswordToggle(buttonId, inputId) {
+        const toggle = document.getElementById(buttonId);
+        const input = document.getElementById(inputId);
+        
+        toggle.addEventListener('click', function() {
+            const type = input.getAttribute('type') === 'password' ? 'text' : 'password';
+            input.setAttribute('type', type);
+            
+            const icon = this.querySelector('i');
+            icon.classList.toggle('fa-eye');
+            icon.classList.toggle('fa-eye-slash');
+        });
+    }
+    
+    setupPasswordToggle('togglePassword1', 'id_password1');
+    setupPasswordToggle('togglePassword2', 'id_password2');
+    
+    // Password strength checker
+    const password1 = document.getElementById('id_password1');
+    const strengthBar = document.getElementById('strengthBar');
+    const requirements = document.querySelectorAll('.requirement');
+    
+    password1.addEventListener('input', function() {
+        const value = this.value;
+        let strength = 0;
+        const checks = {
+            length: value.length >= 8,
+            uppercase: /[A-Z]/.test(value),
+            number: /[0-9]/.test(value)
+        };
+        
+        // Update requirements
+        requirements.forEach(req => {
+            const reqType = req.dataset.req;
+            if (checks[reqType]) {
+                req.classList.add('met');
+                req.querySelector('i').classList.remove('fa-circle');
+                req.querySelector('i').classList.add('fa-check-circle');
+                strength++;
+            } else {
+                req.classList.remove('met');
+                req.querySelector('i').classList.add('fa-circle');
+                req.querySelector('i').classList.remove('fa-check-circle');
+            }
+        });
+        
+        // Update strength bar
+        strengthBar.classList.remove('strength-weak', 'strength-medium', 'strength-strong');
+        if (strength === 1) {
+            strengthBar.classList.add('strength-weak');
+        } else if (strength === 2) {
+            strengthBar.classList.add('strength-medium');
+        } else if (strength === 3) {
+            strengthBar.classList.add('strength-strong');
+        } else {
+            strengthBar.style.width = '0%';
+        }
+    });
+    
+    // Form validation
+    const form = document.getElementById('signupForm');
+    const submitBtn = document.getElementById('submitBtn');
+    
+    form.addEventListener('submit', function(e) {
+        const password1 = document.getElementById('id_password1').value;
+        const password2 = document.getElementById('id_password2').value;
+        
+        if (password1 !== password2) {
+            e.preventDefault();
+            alert('Le password non coincidono!');
+            return false;
+        }
+        
+        // Disable submit button to prevent double submission
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Registrazione in corso...';
+    });
+});
+</script>
+{% endblock %}

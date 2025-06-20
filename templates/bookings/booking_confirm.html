@@ -1,0 +1,253 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Conferma Prenotazione - TicketBooking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-steps {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 3rem;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        color: #9ca3af;
+    }
+    
+    .step.active {
+        color: var(--primary-color);
+    }
+    
+    .step.completed {
+        color: var(--success-color);
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .step.active .step-number {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .step.completed .step-number {
+        background: var(--success-color);
+        color: white;
+    }
+    
+    .step-line {
+        width: 100px;
+        height: 2px;
+        background: #e5e7eb;
+        margin: 0 1rem;
+    }
+    
+    .payment-method {
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+    
+    .payment-method:hover {
+        border-color: var(--primary-color);
+    }
+    
+    .payment-method.selected {
+        border-color: var(--primary-color);
+        background-color: #f0f9ff;
+    }
+    
+    .booking-summary {
+        background: #f9fafb;
+        border-radius: 1rem;
+        padding: 2rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="booking-steps">
+            <div class="step completed">
+                <div class="step-number">
+                    <i class="fas fa-check"></i>
+                </div>
+                <span>Seleziona Biglietti</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step active">
+                <div class="step-number">2</div>
+                <span>Conferma Ordine</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Completato</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="card mb-4">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Conferma il tuo ordine</h3>
+                        
+                        <!-- Booking Summary -->
+                        <div class="booking-summary mb-4">
+                            <h5 class="mb-3">Riepilogo Prenotazione</h5>
+                            
+                            <!-- Event Info -->
+                            <div class="d-flex align-items-start mb-4">
+                                {% if booking.event.image %}
+                                <img src="{{ booking.event.image.url }}" alt="{{ booking.event.title }}" 
+                                     class="rounded me-3" style="width: 80px; height: 80px; object-fit: cover;">
+                                {% endif %}
+                                <div>
+                                    <h6 class="mb-1">{{ booking.event.title }}</h6>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-calendar me-1"></i> {{ booking.event.date|date:"d F Y, H:i" }}<br>
+                                        <i class="fas fa-map-marker-alt me-1"></i> {{ booking.event.venue }}, {{ booking.event.city }}
+                                    </p>
+                                </div>
+                            </div>
+                            
+                            <!-- Tickets -->
+                            <table class="table table-sm">
+                                <thead>
+                                    <tr>
+                                        <th>Biglietto</th>
+                                        <th class="text-center">Quantità</th>
+                                        <th class="text-end">Prezzo</th>
+                                        <th class="text-end">Subtotale</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for item in booking.items.all %}
+                                    <tr>
+                                        <td>{{ item.ticket.name }}</td>
+                                        <td class="text-center">{{ item.quantity }}</td>
+                                        <td class="text-end">€{{ item.price }}</td>
+                                        <td class="text-end">€{{ item.subtotal }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                                <tfoot>
+                                    <tr>
+                                        <th colspan="3" class="text-end">Totale</th>
+                                        <th class="text-end text-primary">€{{ booking.total_amount }}</th>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                            
+                            <!-- Contact Info -->
+                            <div class="mt-3">
+                                <p class="mb-1"><strong>Email:</strong> {{ booking.email }}</p>
+                                <p class="mb-0"><strong>Telefono:</strong> {{ booking.phone_number }}</p>
+                                {% if booking.notes %}
+                                <p class="mb-0 mt-2"><strong>Note:</strong> {{ booking.notes }}</p>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Payment Section -->
+                        <h5 class="mb-3">Metodo di Pagamento</h5>
+                        <div class="alert alert-info mb-4">
+                            <i class="fas fa-info-circle me-2"></i>
+                            Questa è una demo. Il pagamento verrà simulato automaticamente.
+                        </div>
+                        
+                        <div class="payment-method selected">
+                            <div class="d-flex align-items-center">
+                                <i class="fas fa-credit-card fa-2x me-3 text-primary"></i>
+                                <div>
+                                    <h6 class="mb-0">Carta di Credito/Debito</h6>
+                                    <p class="text-muted mb-0 small">Pagamento sicuro con carta</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <!-- Action Buttons -->
+                        <form method="post" class="mt-4">
+                            {% csrf_token %}
+                            <div class="d-flex justify-content-between">
+                                <button type="submit" name="action" value="cancel" class="btn btn-outline-danger">
+                                    <i class="fas fa-times me-2"></i>Annulla Prenotazione
+                                </button>
+                                <button type="submit" name="action" value="confirm" class="btn btn-primary btn-lg">
+                                    Conferma e Paga €{{ booking.total_amount }} <i class="fas fa-lock ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+                
+                <!-- Info Box -->
+                <div class="alert alert-light">
+                    <h6 class="alert-heading">
+                        <i class="fas fa-shield-alt me-2"></i>Pagamento Sicuro
+                    </h6>
+                    <p class="mb-0">
+                        I tuoi dati di pagamento sono protetti con crittografia SSL. 
+                        Non memorizziamo i dati della tua carta di credito.
+                    </p>
+                </div>
+            </div>
+            
+            <!-- Sidebar -->
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title mb-4">Informazioni Importanti</h5>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-ticket-alt me-2 text-primary"></i>Consegna Biglietti</h6>
+                            <p class="text-muted small mb-0">
+                                I biglietti saranno inviati via email entro 5 minuti dal pagamento.
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-undo me-2 text-primary"></i>Politica di Cancellazione</h6>
+                            <p class="text-muted small mb-0">
+                                Puoi cancellare la prenotazione fino a 24 ore prima dell'evento.
+                            </p>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <h6><i class="fas fa-question-circle me-2 text-primary"></i>Assistenza</h6>
+                            <p class="text-muted small mb-0">
+                                Per qualsiasi domanda, contatta il nostro supporto clienti.
+                            </p>
+                        </div>
+                        
+                        <hr>
+                        
+                        <div class="text-center">
+                            <p class="text-muted small mb-2">Codice Prenotazione</p>
+                            <h4 class="text-primary">{{ booking.booking_code }}</h4>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

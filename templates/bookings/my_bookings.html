@@ -1,0 +1,301 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Le Mie Prenotazioni - TicketBooking{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-card {
+        border: none;
+        border-radius: 1rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 1.5rem;
+        overflow: hidden;
+    }
+    
+    .booking-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 20px rgba(0,0,0,0.15);
+    }
+    
+    .booking-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 2rem;
+        font-size: 0.875rem;
+        font-weight: 600;
+    }
+    
+    .status-pending {
+        background-color: #fef3c7;
+        color: #d97706;
+    }
+    
+    .status-confirmed {
+        background-color: #d1fae5;
+        color: #065f46;
+    }
+    
+    .status-cancelled {
+        background-color: #fee2e2;
+        color: #991b1b;
+    }
+    
+    .status-completed {
+        background-color: #e0e7ff;
+        color: #3730a3;
+    }
+    
+    .filter-tabs {
+        background: white;
+        border-radius: 1rem;
+        padding: 0.5rem;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        margin-bottom: 2rem;
+    }
+    
+    .filter-tab {
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        color: #6b7280;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-block;
+        margin: 0.25rem;
+    }
+    
+    .filter-tab:hover {
+        background: #f3f4f6;
+        color: var(--primary-color);
+    }
+    
+    .filter-tab.active {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+    }
+    
+    .empty-state-icon {
+        width: 100px;
+        height: 100px;
+        background: #f3f4f6;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        color: #9ca3af;
+        font-size: 3rem;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <div class="row">
+            <div class="col-lg-12">
+                <h1 class="display-5 fw-bold mb-4">
+                    <i class="fas fa-shopping-bag me-3"></i>Le Mie Prenotazioni
+                </h1>
+                
+                <!-- Filter Tabs -->
+                <div class="filter-tabs">
+                    <a href="?status=all" class="filter-tab {% if not request.GET.status or request.GET.status == 'all' %}active{% endif %}">
+                        Tutte
+                    </a>
+                    <a href="?status=confirmed" class="filter-tab {% if request.GET.status == 'confirmed' %}active{% endif %}">
+                        Confermate
+                    </a>
+                    <a href="?status=pending" class="filter-tab {% if request.GET.status == 'pending' %}active{% endif %}">
+                        In Attesa
+                    </a>
+                    <a href="?status=cancelled" class="filter-tab {% if request.GET.status == 'cancelled' %}active{% endif %}">
+                        Cancellate
+                    </a>
+                </div>
+                
+                {% if bookings %}
+                    {% for booking in bookings %}
+                    <div class="booking-card">
+                        <div class="booking-header">
+                            <div class="row align-items-center">
+                                <div class="col-md-8">
+                                    <h4 class="mb-1">{{ booking.event.title }}</h4>
+                                    <p class="text-muted mb-0">
+                                        <i class="fas fa-calendar me-2"></i>{{ booking.event.date|date:"d F Y, H:i" }}
+                                        <span class="mx-2">|</span>
+                                        <i class="fas fa-map-marker-alt me-2"></i>{{ booking.event.venue }}, {{ booking.event.city }}
+                                    </p>
+                                </div>
+                                <div class="col-md-4 text-md-end">
+                                    <span class="status-badge status-{{ booking.status }}">
+                                        {% if booking.status == 'pending' %}
+                                            <i class="fas fa-clock me-1"></i>In Attesa
+                                        {% elif booking.status == 'confirmed' %}
+                                            <i class="fas fa-check-circle me-1"></i>Confermata
+                                        {% elif booking.status == 'cancelled' %}
+                                            <i class="fas fa-times-circle me-1"></i>Cancellata
+                                        {% else %}
+                                            <i class="fas fa-check-double me-1"></i>Completata
+                                        {% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <p class="mb-2">
+                                        <strong>Codice Prenotazione:</strong> {{ booking.booking_code }}
+                                    </p>
+                                    <p class="mb-2">
+                                        <strong>Data Prenotazione:</strong> {{ booking.created_at|date:"d/m/Y H:i" }}
+                                    </p>
+                                    <p class="mb-0">
+                                        <strong>Biglietti:</strong>
+                                        {% for item in booking.items.all %}
+                                            {{ item.quantity }} x {{ item.ticket.name }}{% if not forloop.last %}, {% endif %}
+                                        {% endfor %}
+                                    </p>
+                                </div>
+                                <div class="col-md-6 text-md-end">
+                                    <h5 class="text-primary mb-3">€{{ booking.total_amount }}</h5>
+                                    
+                                    <div class="d-flex gap-2 justify-content-md-end">
+                                        <a href="{% url 'booking_detail' booking.booking_code %}" class="btn btn-sm btn-outline-primary">
+                                            <i class="fas fa-eye me-1"></i>Dettagli
+                                        </a>
+                                        
+                                        {% if booking.status == 'confirmed' and not booking.event.is_past %}
+                                        <button class="btn btn-sm btn-primary" onclick="showTicket('{{ booking.booking_code }}')">
+                                            <i class="fas fa-ticket-alt me-1"></i>Mostra Biglietto
+                                        </button>
+                                        {% endif %}
+                                        
+                                        {% if booking.is_cancellable %}
+                                        <a href="{% url 'cancel_booking' booking.booking_code %}" class="btn btn-sm btn-outline-danger">
+                                            <i class="fas fa-times me-1"></i>Cancella
+                                        </a>
+                                        {% endif %}
+                                        
+                                        {% if booking.event.is_past and booking.status == 'confirmed' %}
+                                        <button class="btn btn-sm btn-outline-secondary" disabled>
+                                            <i class="fas fa-history me-1"></i>Evento Passato
+                                        </button>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Pagination -->
+                    {% if is_paginated %}
+                    <nav class="mt-5">
+                        <ul class="pagination justify-content-center">
+                            {% if page_obj.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                    <i class="fas fa-chevron-left"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            {% for num in page_obj.paginator.page_range %}
+                            <li class="page-item {% if page_obj.number == num %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">{{ num }}</a>
+                            </li>
+                            {% endfor %}
+                            
+                            {% if page_obj.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}">
+                                    <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                    
+                {% else %}
+                    <!-- Empty State -->
+                    <div class="empty-state">
+                        <div class="empty-state-icon">
+                            <i class="fas fa-shopping-bag"></i>
+                        </div>
+                        <h3 class="mb-3">Nessuna prenotazione trovata</h3>
+                        <p class="text-muted mb-4">
+                            {% if request.GET.status and request.GET.status != 'all' %}
+                                Non hai prenotazioni con questo stato.
+                            {% else %}
+                                Non hai ancora effettuato nessuna prenotazione.
+                            {% endif %}
+                        </p>
+                        <a href="{% url 'event_list' %}" class="btn btn-primary">
+                            <i class="fas fa-search me-2"></i>Esplora Eventi
+                        </a>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Ticket Modal -->
+<div class="modal fade" id="ticketModal" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Il tuo Biglietto</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body text-center">
+                <div id="ticketQR"></div>
+                <h4 class="mt-3" id="ticketCode"></h4>
+                <p class="text-muted">Mostra questo codice all'ingresso</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Chiudi</button>
+                <button type="button" class="btn btn-primary" onclick="printTicket()">
+                    <i class="fas fa-print me-2"></i>Stampa
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function showTicket(bookingCode) {
+    const modal = new bootstrap.Modal(document.getElementById('ticketModal'));
+    const qrContainer = document.getElementById('ticketQR');
+    const codeElement = document.getElementById('ticketCode');
+    
+    // Genera QR Code
+    qrContainer.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${bookingCode}" alt="QR Code" class="img-fluid">`;
+    codeElement.textContent = bookingCode;
+    
+    modal.show();
+}
+
+function printTicket() {
+    window.print();
+}
+</script>
+{% endblock %}

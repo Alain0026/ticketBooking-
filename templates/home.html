@@ -1,0 +1,224 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}TicketBooking - La tua piattaforma per eventi{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero-section">
+    <div class="container">
+        <div class="row align-items-center min-vh-50">
+            <div class="col-lg-6 fade-in">
+                <h1 class="display-4 fw-bold mb-4">
+                    Scopri e Prenota i Migliori Eventi
+                </h1>
+                <p class="lead mb-4">
+                    Concerti, spettacoli, conferenze e molto altro. 
+                    Trova l'evento perfetto per te e prenota i tuoi biglietti in pochi click!
+                </p>
+                <div class="d-flex gap-3">
+                    <a href="{% url 'event_list' %}" class="btn btn-light btn-lg">
+                        <i class="fas fa-search me-2"></i>Esplora Eventi
+                    </a>
+                    {% if not user.is_authenticated %}
+                    <a href="{% url 'signup' %}" class="btn btn-outline-light btn-lg">
+                        <i class="fas fa-user-plus me-2"></i>Registrati Ora
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 text-center">
+                <img src="{% static 'images/hero-illustration.svg' %}" alt="Eventi" class="img-fluid" style="max-width: 500px;">
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="display-5 fw-bold">Perché Scegliere TicketBooking?</h2>
+            <p class="lead text-muted">La piattaforma più semplice e sicura per prenotare i tuoi eventi</p>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-md-4 fade-in">
+                <div class="text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-shield-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>Pagamenti Sicuri</h4>
+                    <p class="text-muted">Transazioni protette e crittografate per la massima sicurezza dei tuoi dati</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 fade-in" style="animation-delay: 0.1s">
+                <div class="text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-clock fa-3x text-primary"></i>
+                    </div>
+                    <h4>Prenotazione Veloce</h4>
+                    <p class="text-muted">Prenota i tuoi biglietti in pochi click, senza complicazioni</p>
+                </div>
+            </div>
+            
+            <div class="col-md-4 fade-in" style="animation-delay: 0.2s">
+                <div class="text-center p-4">
+                    <div class="mb-3">
+                        <i class="fas fa-mobile-alt fa-3x text-primary"></i>
+                    </div>
+                    <h4>Mobile Friendly</h4>
+                    <p class="text-muted">Accedi ai tuoi biglietti ovunque tu sia, direttamente dal tuo smartphone</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Popular Events Section -->
+<section class="py-5 bg-light">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="fw-bold">Eventi in Evidenza</h2>
+            <a href="{% url 'event_list' %}" class="btn btn-outline-primary">
+                Vedi Tutti <i class="fas fa-arrow-right ms-2"></i>
+            </a>
+        </div>
+        
+        <div class="row g-4" id="featured-events">
+            <!-- Gli eventi verranno caricati qui via JavaScript -->
+            <div class="col-12 text-center py-5">
+                <div class="spinner-border text-primary" role="status">
+                    <span class="visually-hidden">Caricamento...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section class="py-5 bg-gradient-primary text-white">
+    <div class="container text-center">
+        <h2 class="display-5 fw-bold mb-4">Pronto a Vivere Esperienze Uniche?</h2>
+        <p class="lead mb-4">Unisciti a migliaia di utenti che hanno già scelto TicketBooking</p>
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'event_list' %}" class="btn btn-light btn-lg">
+                <i class="fas fa-calendar-alt me-2"></i>Sfoglia Eventi
+            </a>
+            {% if not user.is_authenticated %}
+            <a href="{% url 'signup' %}" class="btn btn-outline-light btn-lg">
+                <i class="fas fa-user-plus me-2"></i>Crea Account
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Stats Section -->
+<section class="py-5">
+    <div class="container">
+        <div class="row text-center">
+            <div class="col-md-3 mb-4">
+                <h3 class="display-4 fw-bold text-primary counter" data-target="1500">0</h3>
+                <p class="text-muted">Eventi Disponibili</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h3 class="display-4 fw-bold text-primary counter" data-target="50000">0</h3>
+                <p class="text-muted">Biglietti Venduti</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h3 class="display-4 fw-bold text-primary counter" data-target="25000">0</h3>
+                <p class="text-muted">Utenti Registrati</p>
+            </div>
+            <div class="col-md-3 mb-4">
+                <h3 class="display-4 fw-bold text-primary counter" data-target="98">0</h3>
+                <span class="text-primary">%</span>
+                <p class="text-muted">Soddisfazione</p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Carica eventi in evidenza
+document.addEventListener('DOMContentLoaded', function() {
+    fetch('/api/events/?limit=6')
+        .then(response => response.json())
+        .then(data => {
+            const container = document.getElementById('featured-events');
+            container.innerHTML = '';
+            
+            data.results.forEach((event, index) => {
+                const eventDate = new Date(event.date);
+                const eventCard = `
+                    <div class="col-md-4 fade-in" style="animation-delay: ${index * 0.1}s">
+                        <div class="card event-card h-100">
+                            ${event.is_sold_out ? '<span class="badge bg-danger">Sold Out</span>' : ''}
+                            <div class="event-date">
+                                <div class="day">${eventDate.getDate()}</div>
+                                <div class="month">${eventDate.toLocaleDateString('it-IT', { month: 'short' })}</div>
+                            </div>
+                            <img src="${event.image || '/static/images/event-placeholder.jpg'}" class="card-img-top" alt="${event.title}">
+                            <div class="card-body d-flex flex-column">
+                                <h5 class="card-title">${event.title}</h5>
+                                <p class="text-muted mb-2">
+                                    <i class="fas fa-map-marker-alt me-1"></i> ${event.venue}, ${event.city}
+                                </p>
+                                <p class="card-text flex-grow-1">${event.description ? event.description.substring(0, 100) + '...' : ''}</p>
+                                <div class="d-flex justify-content-between align-items-center mt-3">
+                                    <span class="price-tag">da €${event.min_price}</span>
+                                    <a href="/events/${event.slug}/" class="btn btn-primary btn-sm">
+                                        Dettagli <i class="fas fa-arrow-right ms-1"></i>
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                container.innerHTML += eventCard;
+            });
+        })
+        .catch(error => {
+            console.error('Errore nel caricamento degli eventi:', error);
+        });
+    
+    // Animazione contatori
+    const counters = document.querySelectorAll('.counter');
+    const speed = 200;
+    
+    const animateCounter = (counter) => {
+        const target = +counter.getAttribute('data-target');
+        const count = +counter.innerText;
+        const increment = target / speed;
+        
+        if(count < target) {
+            counter.innerText = Math.ceil(count + increment);
+            setTimeout(() => animateCounter(counter), 1);
+        } else {
+            counter.innerText = target;
+        }
+    };
+    
+    // Intersection Observer per animare i contatori quando sono visibili
+    const observerOptions = {
+        threshold: 0.5
+    };
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if(entry.isIntersecting) {
+                animateCounter(entry.target);
+                observer.unobserve(entry.target);
+            }
+        });
+    }, observerOptions);
+    
+    counters.forEach(counter => {
+        observer.observe(counter);
+    });
+});
+</script>
+{% endblock %}

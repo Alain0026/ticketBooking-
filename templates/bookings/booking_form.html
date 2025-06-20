@@ -1,0 +1,398 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Prenota Biglietti - {{ event.title }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .booking-steps {
+        display: flex;
+        justify-content: center;
+        margin-bottom: 3rem;
+    }
+    
+    .step {
+        display: flex;
+        align-items: center;
+        color: #9ca3af;
+    }
+    
+    .step.active {
+        color: var(--primary-color);
+    }
+    
+    .step-number {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: #e5e7eb;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        margin-right: 0.5rem;
+    }
+    
+    .step.active .step-number {
+        background: var(--gradient-primary);
+        color: white;
+    }
+    
+    .step-line {
+        width: 100px;
+        height: 2px;
+        background: #e5e7eb;
+        margin: 0 1rem;
+    }
+    
+    .ticket-selection {
+        background: #f9fafb;
+        border-radius: 1rem;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+    }
+    
+    .quantity-control {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+    
+    .quantity-btn {
+        width: 40px;
+        height: 40px;
+        border: 2px solid #e5e7eb;
+        background: white;
+        border-radius: 0.5rem;
+        font-size: 1.25rem;
+        transition: all 0.3s ease;
+    }
+    
+    .quantity-btn:hover:not(:disabled) {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
+    }
+    
+    .quantity-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    .order-summary {
+        background: white;
+        border-radius: 1rem;
+        padding: 2rem;
+        box-shadow: var(--shadow-lg);
+        position: sticky;
+        top: 100px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="py-5">
+    <div class="container">
+        <!-- Progress Steps -->
+        <div class="booking-steps">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <span>Seleziona Biglietti</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <span>Conferma Ordine</span>
+            </div>
+            <div class="step-line"></div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <span>Completato</span>
+            </div>
+        </div>
+        
+        <div class="row">
+            <!-- Main Content -->
+            <div class="col-lg-8">
+                <div class="card">
+                    <div class="card-body">
+                        <h3 class="card-title mb-4">Seleziona i tuoi biglietti</h3>
+                        
+                        <!-- Event Info -->
+                        <div class="d-flex align-items-center mb-4 pb-4 border-bottom">
+                            {% if event.image %}
+                            <img src="{{ event.image.url }}" alt="{{ event.title }}" 
+                                 class="rounded" style="width: 100px; height: 100px; object-fit: cover;">
+                            {% endif %}
+                            <div class="ms-3">
+                                <h5 class="mb-1">{{ event.title }}</h5>
+                                <p class="text-muted mb-0">
+                                    <i class="fas fa-calendar me-1"></i> {{ event.date|date:"d F Y" }} alle {{ event.date|date:"H:i" }}<br>
+                                    <i class="fas fa-map-marker-alt me-1"></i> {{ event.venue }}, {{ event.city }}
+                                </p>
+                            </div>
+                        </div>
+                        
+                        <!-- Ticket Selection -->
+                        <form method="post" id="booking-form">
+                            {% csrf_token %}
+                            <input type="hidden" name="cart_data" id="cart-data">
+                            
+                            <div class="mb-4">
+                                {% for ticket in tickets %}
+                                <div class="ticket-selection" data-ticket-id="{{ ticket.id }}" 
+                                     data-price="{{ ticket.price }}" 
+                                     data-available="{{ ticket.available_quantity }}">
+                                    <div class="row align-items-center">
+                                        <div class="col-md-6">
+                                            <h5 class="mb-1">{{ ticket.name }}</h5>
+                                            <p class="text-muted mb-0">{{ ticket.description }}</p>
+                                            <p class="mb-0">
+                                                <span class="h5 text-primary">€{{ ticket.price }}</span>
+                                                <span class="text-muted ms-2">
+                                                    {% if ticket.available_quantity > 0 %}
+                                                        ({{ ticket.available_quantity }} disponibili)
+                                                    {% else %}
+                                                        <span class="text-danger">Esaurito</span>
+                                                    {% endif %}
+                                                </span>
+                                            </p>
+                                        </div>
+                                        <div class="col-md-6 text-md-end">
+                                            {% if ticket.available_quantity > 0 %}
+                                            <div class="quantity-control justify-content-md-end">
+                                                <button type="button" class="quantity-btn minus" data-ticket="{{ ticket.id }}">
+                                                    <i class="fas fa-minus"></i>
+                                                </button>
+                                                <input type="number" class="form-control text-center" 
+                                                       style="width: 80px;" value="0" min="0" 
+                                                       max="{{ ticket.max_per_order }}" 
+                                                       id="quantity-{{ ticket.id }}" readonly>
+                                                <button type="button" class="quantity-btn plus" data-ticket="{{ ticket.id }}">
+                                                    <i class="fas fa-plus"></i>
+                                                </button>
+                                            </div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                            
+                            <!-- Contact Information -->
+                            <h4 class="mb-3">Informazioni di contatto</h4>
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    {{ form.email.label_tag }}
+                                    {{ form.email }}
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    {{ form.phone_number.label_tag }}
+                                    {{ form.phone_number }}
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                {{ form.notes.label_tag }}
+                                {{ form.notes }}
+                            </div>
+                            
+                            <div class="form-check mb-4">
+                                {{ form.terms_accepted }}
+                                <label class="form-check-label" for="{{ form.terms_accepted.id_for_label }}">
+                                    Accetto i <a href="#" target="_blank">termini e condizioni</a> e la 
+                                    <a href="#" target="_blank">privacy policy</a>
+                                </label>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <a href="{% url 'event_detail' event.slug %}" class="btn btn-outline-secondary">
+                                    <i class="fas fa-arrow-left me-2"></i>Torna all'evento
+                                </a>
+                                <button type="submit" class="btn btn-primary btn-lg" id="submit-btn" disabled>
+                                    Procedi al pagamento <i class="fas fa-arrow-right ms-2"></i>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Order Summary Sidebar -->
+            <div class="col-lg-4">
+                <div class="order-summary">
+                    <h4 class="mb-4">Riepilogo Ordine</h4>
+                    
+                    <div id="order-items" class="mb-4">
+                        <p class="text-muted text-center py-3">
+                            Nessun biglietto selezionato
+                        </p>
+                    </div>
+                    
+                    <div class="border-top pt-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotale</span>
+                            <span>€<span id="subtotal">0.00</span></span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-3">
+                            <span>Commissioni</span>
+                            <span>€<span id="fees">0.00</span></span>
+                        </div>
+                        <div class="border-top pt-3">
+                            <div class="d-flex justify-content-between">
+                                <h5>Totale</h5>
+                                <h5 class="text-primary">€<span id="total">0.00</span></h5>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4">
+                        <div class="alert alert-info small">
+                            <i class="fas fa-info-circle me-1"></i>
+                            I biglietti saranno inviati via email dopo il pagamento
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const form = document.getElementById('booking-form');
+    const cartDataInput = document.getElementById('cart-data');
+    const submitBtn = document.getElementById('submit-btn');
+    const orderItemsDiv = document.getElementById('order-items');
+    const subtotalEl = document.getElementById('subtotal');
+    const feesEl = document.getElementById('fees');
+    const totalEl = document.getElementById('total');
+    
+    const cart = {};
+    const feePercentage = 0.05; // 5% di commissioni
+    
+    // Event listeners per i pulsanti quantità
+    document.querySelectorAll('.quantity-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const ticketId = this.dataset.ticket;
+            const ticketDiv = document.querySelector(`[data-ticket-id="${ticketId}"]`);
+            const input = document.getElementById(`quantity-${ticketId}`);
+            const currentQty = parseInt(input.value);
+            const maxQty = parseInt(ticketDiv.dataset.available);
+            const maxPerOrder = parseInt(input.max);
+            
+            if (this.classList.contains('plus')) {
+                if (currentQty < Math.min(maxQty, maxPerOrder)) {
+                    input.value = currentQty + 1;
+                    cart[ticketId] = currentQty + 1;
+                }
+            } else if (this.classList.contains('minus')) {
+                if (currentQty > 0) {
+                    input.value = currentQty - 1;
+                    if (currentQty - 1 === 0) {
+                        delete cart[ticketId];
+                    } else {
+                        cart[ticketId] = currentQty - 1;
+                    }
+                }
+            }
+            
+            updateOrderSummary();
+            updateButtons();
+        });
+    });
+    
+    function updateOrderSummary() {
+        let html = '';
+        let subtotal = 0;
+        
+        if (Object.keys(cart).length === 0) {
+            html = '<p class="text-muted text-center py-3">Nessun biglietto selezionato</p>';
+        } else {
+            Object.entries(cart).forEach(([ticketId, quantity]) => {
+                const ticketDiv = document.querySelector(`[data-ticket-id="${ticketId}"]`);
+                const price = parseFloat(ticketDiv.dataset.price);
+                const name = ticketDiv.querySelector('h5').textContent;
+                const lineTotal = price * quantity;
+                subtotal += lineTotal;
+                
+                html += `
+                    <div class="d-flex justify-content-between mb-2">
+                        <div>
+                            <strong>${name}</strong><br>
+                            <small class="text-muted">${quantity} x €${price.toFixed(2)}</small>
+                        </div>
+                        <div class="text-end">
+                            €${lineTotal.toFixed(2)}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+        
+        const fees = subtotal * feePercentage;
+        const total = subtotal + fees;
+        
+        orderItemsDiv.innerHTML = html;
+        subtotalEl.textContent = subtotal.toFixed(2);
+        feesEl.textContent = fees.toFixed(2);
+        totalEl.textContent = total.toFixed(2);
+        
+        // Aggiorna il campo nascosto con i dati del carrello
+        cartDataInput.value = JSON.stringify(cart);
+    }
+    
+    function updateButtons() {
+        const hasItems = Object.keys(cart).length > 0;
+        submitBtn.disabled = !hasItems;
+        
+        // Aggiorna lo stato dei pulsanti minus
+        document.querySelectorAll('.quantity-btn.minus').forEach(btn => {
+            const ticketId = btn.dataset.ticket;
+            const input = document.getElementById(`quantity-${ticketId}`);
+            btn.disabled = parseInt(input.value) === 0;
+        });
+        
+        // Aggiorna lo stato dei pulsanti plus
+        document.querySelectorAll('.quantity-btn.plus').forEach(btn => {
+            const ticketId = btn.dataset.ticket;
+            const ticketDiv = document.querySelector(`[data-ticket-id="${ticketId}"]`);
+            const input = document.getElementById(`quantity-${ticketId}`);
+            const currentQty = parseInt(input.value);
+            const maxQty = parseInt(ticketDiv.dataset.available);
+            const maxPerOrder = parseInt(input.max);
+            
+            btn.disabled = currentQty >= Math.min(maxQty, maxPerOrder);
+        });
+    }
+    
+    // Recupera eventuali selezioni precedenti dal sessionStorage
+    const savedTickets = sessionStorage.getItem('selectedTickets');
+    if (savedTickets) {
+        const saved = JSON.parse(savedTickets);
+        Object.entries(saved).forEach(([ticketId, quantity]) => {
+            if (quantity > 0) {
+                const input = document.getElementById(`quantity-${ticketId}`);
+                if (input) {
+                    input.value = quantity;
+                    cart[ticketId] = quantity;
+                }
+            }
+        });
+        sessionStorage.removeItem('selectedTickets');
+        updateOrderSummary();
+        updateButtons();
+    }
+    
+    // Validazione del form
+    form.addEventListener('submit', function(e) {
+        if (Object.keys(cart).length === 0) {
+            e.preventDefault();
+            alert('Seleziona almeno un biglietto');
+            return false;
+        }
+    });
+});
+</script>
+{% endblock %}
