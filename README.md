@@ -172,6 +172,9 @@ python manage.py collectstatic --noinput
 python manage.py runserver
 ```
 
+Per la publicazione del sito, ho usato Railway version gratuita di 30 giorni.
+il link publico del mio sito è : 'ticketbooking-martial.up.railway.app'
+
 Visita: http://127.0.0.1:8000/
 
 ## ⚙️ Configurazione
