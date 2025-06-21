@@ -42,12 +42,12 @@ INSTALLED_APPS = [
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
+    'cloudinary_storage',
     'django.contrib.staticfiles',
 
     # Tiers
     'rest_framework',
     'corsheaders',
-    'cloudinary_storage',
 
     # Apps locales
     'events',
