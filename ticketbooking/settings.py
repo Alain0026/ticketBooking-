@@ -51,7 +51,6 @@ INSTALLED_APPS = [
     'events',
     'bookings',
     'accounts',
-    'cloudinary',
     'cloudinary_storage',
 ]
 # Use Cloudinary for media file storage
