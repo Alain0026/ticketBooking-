@@ -1,16 +1,16 @@
 /* ========== Variables ========== */
 :root {
-    --primary-color: #6366f1;
-    --secondary-color: #8b5cf6;
+    --primary-color: #3b82f6;      /* Arancione */
+    --secondary-color: #ff6b35;    /* Blu */
     --success-color: #10b981;
     --danger-color: #ef4444;
     --warning-color: #f59e0b;
     --info-color: #3b82f6;
-    --dark-color: #1f2937;
-    --light-color: #f9fafb;
-    --gradient-primary: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    --gradient-secondary: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-    --gradient-dark: linear-gradient(135deg, #434343 0%, #000000 100%);
+    --dark-color: #1a1a1a;         /* Nero scuro ff6b35        ff8c42*/
+    --light-color: #ffffff;        /* Bianco */
+    --gradient-primary: linear-gradient(135deg, #ff6b35 5%, #ff8c42 100%);
+    --gradient-secondary: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%);
+    --gradient-dark: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
     --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
     --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
     --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
@@ -27,8 +27,8 @@
 
 body {
     font-family: 'Poppins', sans-serif;
-    background-color: var(--light-color);
-    color: #374151;
+    background-color: #f8f9fa;
+    color: #333333;
     line-height: 1.6;
     min-height: 100vh;
     display: flex;
@@ -48,11 +48,19 @@ h1, h2, h3, h4, h5, h6 {
     margin-bottom: 1rem;
 }
 
+.display-41 {
+    font-weight: 700;
+    background: var(--gradient-primary);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color:#60a5fa;
+    background-clip: text;
+}
+
 .display-4 {
     font-weight: 700;
     background: var(--gradient-primary);
     -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
+    -webkit-text-fill-color:#ffffff;
     background-clip: text;
 }
 
@@ -60,13 +68,13 @@ h1, h2, h3, h4, h5, h6 {
 .navbar {
     box-shadow: var(--shadow-md);
     backdrop-filter: blur(10px);
-    background: rgba(99, 102, 241, 0.95) !important;
+    background: var(--gradient-primary) !important;
     transition: var(--transition);
 }
 
 .navbar.navbar-scrolled {
     box-shadow: var(--shadow-lg);
-    background: rgba(99, 102, 241, 0.98) !important;
+    background: rgba(255, 107, 53, 0.98) !important;
 }
 
 .bg-gradient-primary {
@@ -77,6 +85,7 @@ h1, h2, h3, h4, h5, h6 {
     font-size: 1.5rem;
     font-weight: 700;
     letter-spacing: -0.5px;
+    color: white !important;
 }
 
 .navbar-nav .nav-link {
@@ -120,12 +129,25 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-primary {
-    background: var(--gradient-primary);
+    background: var(--primary-color);
     border: none;
     color: white;
 }
 
 .btn-primary:hover {
+    background: #ffffff;
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-lg);
+}
+
+.btn-secondary {
+    background: var(--secondary-color);
+    border: none;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background: #60a5fa;
     transform: translateY(-2px);
     box-shadow: var(--shadow-lg);
 }
@@ -136,13 +158,13 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .btn-outline-primary:hover {
-    background: var(--gradient-primary);
-    border-color: transparent;
+    background: var(--primary-color);
+    border-color: var(--primary-color);
     color: white;
 }
 
 .btn-gradient {
-    background: var(--gradient-secondary);
+    background: var(--gradient-primary);
     border: none;
     color: white;
 }
@@ -241,7 +263,7 @@ h1, h2, h3, h4, h5, h6 {
 
 .form-control:focus, .form-select:focus {
     border-color: var(--primary-color);
-    box-shadow: 0 0 0 0.2rem rgba(99, 102, 241, 0.25);
+    box-shadow: 0 0 0 0.2rem rgba(255, 107, 53, 0.25);
 }
 
 .form-label {
@@ -315,6 +337,26 @@ h1, h2, h3, h4, h5, h6 {
     box-shadow: var(--shadow-md);
 }
 
+.ticket-card {
+    border: 2px solid #e5e7eb;
+    border-radius: 0.5rem;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+    transition: var(--transition);
+    cursor: pointer;
+}
+
+.ticket-card:hover {
+    border-color: var(--primary-color);
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.ticket-card.selected {
+    border-color: var(--primary-color);
+    background-color: #fff5f0;
+}
+
 .quantity-input {
     display: flex;
     align-items: center;
@@ -382,11 +424,22 @@ h1, h2, h3, h4, h5, h6 {
 
 /* ========== Footer ========== */
 .footer {
-    background: var(--gradient-dark) !important;
+    background: #1a1a1a !important;
+    color: #ffffff;
     margin-top: auto;
 }
 
+.footer h5 {
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+}
+
+.footer p {
+    color: #cccccc;
+}
+
 .footer a {
+    color: #cccccc;
     text-decoration: none;
     transition: var(--transition);
 }
@@ -395,9 +448,14 @@ h1, h2, h3, h4, h5, h6 {
     color: var(--primary-color) !important;
 }
 
+.footer .text-muted {
+    color: #cccccc !important;
+}
+
 .social-links a {
     display: inline-block;
     transition: var(--transition);
+    color: #ffffff;
 }
 
 .social-links a:hover {
@@ -411,6 +469,14 @@ h1, h2, h3, h4, h5, h6 {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
+}
+
+.text-primary {
+    color: var(--primary-color) !important;
+}
+
+.bg-primary {
+    background-color: var(--primary-color) !important;
 }
 
 .bg-gradient-light {

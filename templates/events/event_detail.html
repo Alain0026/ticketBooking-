@@ -49,7 +49,7 @@
     
     .ticket-card.selected {
         border-color: var(--primary-color);
-        background-color: #f0f9ff;
+        background-color: #fff5f0;
     }
     
     .info-icon {
@@ -63,6 +63,26 @@
         color: white;
         font-size: 1.5rem;
         margin-bottom: 1rem;
+    }
+    
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    
+    .quantity-selector button {
+        width: 30px;
+        height: 30px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    .quantity-selector button:hover {
+        border-color: var(--primary-color);
+        color: var(--primary-color);
     }
 </style>
 {% endblock %}
@@ -198,48 +218,54 @@
                         </div>
                         {% else %}
                             {% if user.is_authenticated %}
-                            <form action="{% url 'create_booking' event.slug %}" method="get">
-                                <div class="mb-4">
-                                    {% for ticket in tickets %}
-                                    <div class="ticket-card" data-ticket-id="{{ ticket.id }}">
-                                        <div class="d-flex justify-content-between align-items-start mb-2">
-                                            <div>
-                                                <h5 class="mb-1">{{ ticket.name }}</h5>
-                                                <p class="text-muted small mb-2">{{ ticket.description }}</p>
-                                            </div>
-                                            <div class="text-end">
-                                                <div class="price-tag">€{{ ticket.price }}</div>
-                                            </div>
+                            <div class="mb-4">
+                                {% for ticket in tickets %}
+                                <div class="ticket-card" 
+                                     data-ticket-id="{{ ticket.id }}"
+                                     data-price="{{ ticket.price }}"
+                                     data-available="{{ ticket.available_quantity }}">
+                                    <div class="d-flex justify-content-between align-items-start mb-2">
+                                        <div>
+                                            <h5 class="mb-1">{{ ticket.name }}</h5>
+                                            <p class="text-muted small mb-2">{{ ticket.description }}</p>
                                         </div>
-                                        <div class="d-flex justify-content-between align-items-center">
-                                            <span class="text-muted small">
-                                                {% if ticket.available_quantity > 0 %}
-                                                    {{ ticket.available_quantity }} disponibili
-                                                {% else %}
-                                                    <span class="text-danger">Esauriti</span>
-                                                {% endif %}
-                                            </span>
-                                            <div class="quantity-selector" style="display: none;">
-                                                <button type="button" class="btn btn-sm btn-outline-secondary minus-btn">-</button>
-                                                <span class="mx-2 quantity-display">0</span>
-                                                <button type="button" class="btn btn-sm btn-outline-secondary plus-btn">+</button>
-                                            </div>
+                                        <div class="text-end">
+                                            <div class="price-tag">€{{ ticket.price }}</div>
                                         </div>
                                     </div>
-                                    {% endfor %}
-                                </div>
-                                
-                                <div class="border-top pt-3 mb-3">
                                     <div class="d-flex justify-content-between align-items-center">
-                                        <h5 class="mb-0">Totale:</h5>
-                                        <h4 class="mb-0 text-primary">€<span id="total-price">0</span></h4>
+                                        <span class="text-muted small">
+                                            {% if ticket.available_quantity > 0 %}
+                                                {{ ticket.available_quantity }} disponibili
+                                            {% else %}
+                                                <span class="text-danger">Esauriti</span>
+                                            {% endif %}
+                                        </span>
+                                        {% if ticket.available_quantity > 0 %}
+                                        <div class="quantity-selector" style="display: none;">
+                                            <button type="button" class="minus-btn">-</button>
+                                            <span class="mx-2 quantity-display">0</span>
+                                            <button type="button" class="plus-btn">+</button>
+                                        </div>
+                                        {% endif %}
                                     </div>
                                 </div>
-                                
-                                <button type="submit" class="btn btn-primary btn-lg w-100" id="proceed-btn" disabled>
-                                    <i class="fas fa-shopping-cart me-2"></i>Procedi con l'ordine
-                                </button>
-                            </form>
+                                {% endfor %}
+                            </div>
+                            
+                            <div class="border-top pt-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <h5 class="mb-0">Totale:</h5>
+                                    <h4 class="mb-0 text-primary">€<span id="total-price">0</span></h4>
+                                </div>
+                            </div>
+                            
+                            <button class="btn btn-primary btn-lg w-100 disabled" 
+                                    id="proceed-btn" 
+                                    onclick="proceedToBooking(event, '{{ event.slug }}')"
+                                    style="opacity: 0.5;">
+                                <i class="fas fa-shopping-cart me-2"></i>Prenota Ora
+                            </button>
                             {% else %}
                             <div class="text-center py-4">
                                 <p class="mb-3">Effettua il login per prenotare i biglietti</p>
@@ -258,87 +284,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-    const ticketCards = document.querySelectorAll('.ticket-card');
-    const totalPriceEl = document.getElementById('total-price');
-    const proceedBtn = document.getElementById('proceed-btn');
-    const selectedTickets = {};
-    
-    ticketCards.forEach(card => {
-        const ticketId = card.dataset.ticketId;
-        const price = parseFloat(card.querySelector('.price-tag').textContent.replace('€', ''));
-        const availableQty = parseInt(card.querySelector('.text-muted').textContent) || 0;
-        const quantitySelector = card.querySelector('.quantity-selector');
-        const quantityDisplay = card.querySelector('.quantity-display');
-        const minusBtn = card.querySelector('.minus-btn');
-        const plusBtn = card.querySelector('.plus-btn');
-        
-        if (availableQty === 0) {
-            card.style.opacity = '0.5';
-            card.style.cursor = 'not-allowed';
-            return;
-        }
-        
-        card.addEventListener('click', function(e) {
-            if (e.target.closest('.quantity-selector')) return;
-            
-            if (card.classList.contains('selected')) {
-                card.classList.remove('selected');
-                quantitySelector.style.display = 'none';
-                selectedTickets[ticketId] = 0;
-                quantityDisplay.textContent = '0';
-            } else {
-                card.classList.add('selected');
-                quantitySelector.style.display = 'flex';
-                selectedTickets[ticketId] = 1;
-                quantityDisplay.textContent = '1';
-            }
-            updateTotal();
-        });
-        
-        minusBtn.addEventListener('click', function() {
-            let qty = selectedTickets[ticketId] || 0;
-            if (qty > 1) {
-                selectedTickets[ticketId] = qty - 1;
-                quantityDisplay.textContent = selectedTickets[ticketId];
-                updateTotal();
-            }
-        });
-        
-        plusBtn.addEventListener('click', function() {
-            let qty = selectedTickets[ticketId] || 0;
-            if (qty < Math.min(availableQty, 10)) {
-                selectedTickets[ticketId] = qty + 1;
-                quantityDisplay.textContent = selectedTickets[ticketId];
-                updateTotal();
-            }
-        });
-    });
-    
-    function updateTotal() {
-        let total = 0;
-        let hasSelection = false;
-        
-        ticketCards.forEach(card => {
-            const ticketId = card.dataset.ticketId;
-            const price = parseFloat(card.querySelector('.price-tag').textContent.replace('€', ''));
-            const qty = selectedTickets[ticketId] || 0;
-            
-            if (qty > 0) {
-                total += price * qty;
-                hasSelection = true;
-            }
-        });
-        
-        totalPriceEl.textContent = total.toFixed(2);
-        proceedBtn.disabled = !hasSelection;
-        
-        if (hasSelection) {
-            // Salva la selezione per il passaggio successivo
-            sessionStorage.setItem('selectedTickets', JSON.stringify(selectedTickets));
-        }
-    }
-});
-</script>
+<script src="{% static 'js/event-detail.js' %}"></script>
 {% endblock %}
