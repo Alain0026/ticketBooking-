@@ -1,44 +1,22 @@
-import os
+"""
+Django settings for ticketbooking project.
+"""
+
 from pathlib import Path
-from dotenv import load_dotenv
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
+import os
 
-# Load .env file (utile pour Railway + local dev)
-load_dotenv()
-
+# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# Detect environment
-DEBUG = os.getenv('DEBUG', 'False').lower() == 'true'
+# SECURITY WARNING: keep the secret key used in production secret!
+SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
 
-# Set secret key from environment or use default (à remplacer !)
-SECRET_KEY = os.getenv('SECRET_KEY', 'django-insecure-your-secret-key-here-change-in-production')
+# SECURITY WARNING: don't run with debug turned on in production!
+DEBUG = True
 
-# Railway force souvent HTTPS → proxy
-SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+ALLOWED_HOSTS = []
 
-# Redirection HTTPS si DEBUG = False
-SECURE_SSL_REDIRECT = not DEBUG
-
-# Sécurité cookies
-SESSION_COOKIE_SECURE = not DEBUG
-CSRF_COOKIE_SECURE = not DEBUG
-
-# Hosts & CSRF
-ALLOWED_HOSTS = [
-    'web-production-906c0.up.railway.app',
-    '127.0.0.1',
-    'localhost',
-]
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://*web-production-906c0.up.railway.app',
-    'http://localhost:8000',
-]
-
-# Applications Django
+# Application definition
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -51,19 +29,7 @@ INSTALLED_APPS = [
     'events',
     'bookings',
     'accounts',
-    'cloudinary',
-    'cloudinary_storage',
 ]
-# Use Cloudinary for media file storage
-DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
-
-# Tes identifiants Cloudinary
-CLOUDINARY_STORAGE = {
-    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
-    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
-    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
-}
-
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -96,47 +62,57 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ticketbooking.wsgi.application'
 
-# Database - Railway utilisera ses propres variables d’environnement
-if os.getenv('DATABASE_URL'):
-    import dj_database_url
-    DATABASES = {
-        'default': dj_database_url.parse(os.getenv('DATABASE_URL'), conn_max_age=600)
+# Database
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
     }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
-# Auth
-AUTH_USER_MODEL = 'accounts.CustomUser'
+# Password validation
+AUTH_PASSWORD_VALIDATORS = [
+    {
+        'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator',
+    },
+    {
+        'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
+    },
+]
 
-# Internationalisation
+# Internationalization
 LANGUAGE_CODE = 'it-it'
 TIME_ZONE = 'Europe/Rome'
 USE_I18N = True
 USE_TZ = True
 
-# Static & media
+# Static files (CSS, JavaScript, Images)
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Pour Railway collectstatic
+STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
-if DEBUG:
-    STATICFILES_DIRS = [BASE_DIR / 'static']  # Pour local seulement
-
+# Media files
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR / 'media'
 
+# Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# Auth redirections
+# Custom User Model
+AUTH_USER_MODEL = 'accounts.CustomUser'
+
+# Login URLs
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'  # Questo fa sì che dopo il logout si vada alla homepage
 
-# Django REST Framework
+# REST Framework settings
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.SessionAuthentication',
@@ -148,11 +124,11 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 10
 }
 
-# CORS
+# CORS settings
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
 
-# Email dev
+# Email settings (for development)
 EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
