@@ -15,6 +15,7 @@ SECRET_KEY = 'django-insecure-your-secret-key-here-change-in-production'
 DEBUG = True
 
 ALLOWED_HOSTS = os.getenv("DJANGO_ALLOWED_HOSTS", "127.0.0.1,localhost").split(",")
+CSRF_TRUSTED_ORIGINS = ['https://ticketbooking-martial.up.railway.app']
 
 # Application definition
 INSTALLED_APPS = [
