@@ -110,7 +110,7 @@ AUTH_USER_MODEL = 'accounts.CustomUser'
 # Login URLs
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = '/'
-LOGOUT_REDIRECT_URL = '/'
+LOGOUT_REDIRECT_URL = '/'  # Questo fa sì che dopo il logout si vada alla homepage
 
 # REST Framework settings
 REST_FRAMEWORK = {
