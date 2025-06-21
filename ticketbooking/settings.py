@@ -1,6 +1,9 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
+import cloudinary
+import cloudinary.uploader
+import cloudinary.api
 
 # Load .env file (utile pour Railway + local dev)
 load_dotenv()
@@ -48,7 +51,19 @@ INSTALLED_APPS = [
     'events',
     'bookings',
     'accounts',
+    'cloudinary',
+    'cloudinary_storage',
 ]
+# Use Cloudinary for media file storage
+DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
+
+# Tes identifiants Cloudinary
+CLOUDINARY_STORAGE = {
+    'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
+    'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
+    'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
+}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -106,13 +121,13 @@ USE_TZ = True
 
 # Static & media
 STATIC_URL = '/static/'
-STATIC_ROOT = BASE_DIR / 'staticfiles'  # Pour Railway collectstatic
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')  # Pour Railway collectstatic
 
 if DEBUG:
     STATICFILES_DIRS = [BASE_DIR / 'static']  # Pour local seulement
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = BASE_DIR / 'media'
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 

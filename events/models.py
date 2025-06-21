@@ -1,6 +1,7 @@
 from django.db import models
 from django.urls import reverse
 from django.utils import timezone
+from cloudinary.models import CloudinaryField
 
 class EventCategory(models.Model):
     """Categoria degli eventi"""

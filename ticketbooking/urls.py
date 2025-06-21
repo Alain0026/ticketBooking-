@@ -12,7 +12,9 @@ urlpatterns = [
     path('bookings/', include('bookings.urls')),
     path('api/', include('events.api_urls')),
     path('api/', include('bookings.api_urls')),
-]
+] 
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
