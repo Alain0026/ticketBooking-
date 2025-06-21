@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
 {% load static %}
+{% load event_tags %}
 
 {% block title %}{{ event.title }} - TicketBooking{% endblock %}
 
@@ -89,7 +90,7 @@
 
 {% block content %}
 <!-- Event Hero -->
-<section class="event-hero" {% if event.image %}style="background-image: url('{{ event.image.url }}');"{% else %}style="background: var(--gradient-primary);"{% endif %}>
+<section class="event-hero" style="background-image: url('{{ event|event_image_url }}');">
     <div class="event-hero-content">
         <div class="container">
             <div class="row">
