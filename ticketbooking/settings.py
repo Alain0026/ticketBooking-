@@ -25,13 +25,13 @@ CSRF_COOKIE_SECURE = not DEBUG
 
 # Hosts & CSRF
 ALLOWED_HOSTS = [
-    '.railway.app',
+    'web-production-906c0.up.railway.app',
     '127.0.0.1',
     'localhost',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app',
+    'https://*web-production-906c0.up.railway.app',
     'http://localhost:8000',
 ]
 
