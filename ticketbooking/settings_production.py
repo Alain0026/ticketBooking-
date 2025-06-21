@@ -45,7 +45,6 @@ cloudinary.config(
 
 # IMPORTANTE: Aggiungi cloudinary_storage PRIMA di django.contrib.staticfiles
 INSTALLED_APPS.insert(0, 'cloudinary_storage')
-INSTALLED_APPS.insert(1, 'cloudinary')
 
 # Media files su Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'

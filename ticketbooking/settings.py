@@ -47,7 +47,6 @@ INSTALLED_APPS = [
     # Tiers
     'rest_framework',
     'corsheaders',
-    'cloudinary',
     'cloudinary_storage',
 
     # Apps locales
