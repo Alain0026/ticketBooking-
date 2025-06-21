@@ -1,9 +1,6 @@
 import os
 from pathlib import Path
 from dotenv import load_dotenv
-import cloudinary
-import cloudinary.uploader
-import cloudinary.api
 
 # Load .env file (utile pour Railway + local dev)
 load_dotenv()
@@ -34,7 +31,7 @@ ALLOWED_HOSTS = [
 ]
 
 CSRF_TRUSTED_ORIGINS = [
-    'https://*web-production-906c0.up.railway.app',
+    'https://web-production-906c0.up.railway.app',
     'http://localhost:8000',
 ]
 
@@ -46,26 +43,31 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
+    # Tiers
     'rest_framework',
     'corsheaders',
+    'cloudinary',
+    'cloudinary_storage',
+
+    # Apps locales
     'events',
     'bookings',
     'accounts',
-    'cloudinary_storage',
 ]
-# Use Cloudinary for media file storage
+
+# Utilise Cloudinary pour les fichiers média
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
 
-# Tes identifiants Cloudinary
 CLOUDINARY_STORAGE = {
     'CLOUD_NAME': os.getenv('CLOUDINARY_CLOUD_NAME'),
     'API_KEY': os.getenv('CLOUDINARY_API_KEY'),
     'API_SECRET': os.getenv('CLOUDINARY_API_SECRET')
 }
 
-
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',  # Pour la gestion des fichiers statiques en prod
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -95,7 +97,7 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'ticketbooking.wsgi.application'
 
-# Database - Railway utilisera ses propres variables d’environnement
+# Database
 if os.getenv('DATABASE_URL'):
     import dj_database_url
     DATABASES = {
@@ -127,6 +129,9 @@ if DEBUG:
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+# WhiteNoise pour compresser les fichiers statiques (prod)
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
