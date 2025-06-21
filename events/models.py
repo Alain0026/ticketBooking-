@@ -27,8 +27,13 @@ class Event(models.Model):
     address = models.TextField(verbose_name='Indirizzo')
     city = models.CharField(max_length=100, verbose_name='Città')
     
-    # Immagine
-    image = models.ImageField(upload_to='events/', blank=True, null=True)
+    # Immagine - compatibile con Cloudinary
+    image = models.ImageField(
+        upload_to='events/', 
+        blank=True, 
+        null=True,
+        help_text='Immagine dell\'evento (sarà caricata su Cloudinary in produzione)'
+    )
     
     # Prezzi e disponibilità
     max_capacity = models.IntegerField(verbose_name='Capienza massima')

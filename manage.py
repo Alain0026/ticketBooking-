@@ -6,7 +6,12 @@ import sys
 
 def main():
     """Run administrative tasks."""
-    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings')
+    # Usa settings_production se siamo su Railway
+    if os.environ.get('RAILWAY_ENVIRONMENT'):
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings_production')
+    else:
+        os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings')
+    
     try:
         from django.core.management import execute_from_command_line
     except ImportError as exc:

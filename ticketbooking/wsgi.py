@@ -11,6 +11,10 @@ import os
 
 from django.core.wsgi import get_wsgi_application
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings')
+# Usa settings_production se siamo su Railway
+if os.environ.get('RAILWAY_ENVIRONMENT'):
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings_production')
+else:
+    os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'ticketbooking.settings')
 
 application = get_wsgi_application()

@@ -28,3 +28,12 @@ Thumbs.db
 
 # Environment
 .env
+.env.local
+.env.production
+
+# Railway
+railway.env
+
+# Backup
+*.bak
+backup.json
