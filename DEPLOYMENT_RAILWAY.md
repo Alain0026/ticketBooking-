@@ -150,3 +150,81 @@ railway logs
 ## ✅ Il tuo sito è ora LIVE!
 
 Condividi il link del tuo sito deployato! 🎉
+
+
+# 🖼️ Come Risolvere il Problema delle Immagini su Railway
+
+## Il Problema
+Le immagini statiche locali (`static/images/events/`) non funzionano su Railway perché:
+1. Railway non persiste i file statici tra i deploy
+2. Le immagini devono essere caricate su Cloudinary
+
+## Soluzione 1: Automatica (Consigliata)
+
+### 1. Aggiorna il tuo repository con i file modificati:
+```bash
+git add .
+git commit -m "Fix event images loading from URLs"
+git push origin main
+```
+
+### 2. Railway farà automaticamente:
+- Creare gli eventi
+- Caricare le immagini da URL pubblici
+- Salvare su Cloudinary
+
+## Soluzione 2: Manuale (Se l'automatica non funziona)
+
+### 1. Installa Railway CLI:
+```bash
+npm install -g @railway/cli
+railway login
+railway link
+```
+
+### 2. Esegui il comando manualmente:
+```bash
+railway run python manage.py load_images
+```
+
+## Soluzione 3: Carica manualmente dal pannello admin
+
+### 1. Accedi al pannello admin:
+```
+https://tuoapp.up.railway.app/admin/
+```
+
+### 2. Per ogni evento:
+1. Clicca su "Eventi"
+2. Seleziona un evento
+3. Nella sezione "Immagine", clicca "Scegli file"
+4. Carica un'immagine dal tuo computer
+5. Salva
+
+L'immagine verrà automaticamente caricata su Cloudinary!
+
+## Verifica
+
+Dopo aver applicato una delle soluzioni:
+1. Vai sulla homepage
+2. Gli eventi dovrebbero mostrare immagini diverse
+3. Le immagini sono salvate su Cloudinary (non nel repository)
+
+## Note Importanti
+
+- **NON** mettere immagini nella cartella `static/images/events/` per produzione
+- Usa sempre URL pubblici o caricamento diretto
+- Le immagini su Cloudinary sono permanenti
+- Il piano gratuito di Cloudinary è più che sufficiente
+
+## Debug
+
+Se ancora non funziona, controlla:
+```bash
+railway logs
+```
+
+Cerca errori relativi a:
+- Cloudinary configuration
+- Image upload errors
+- Permission denied

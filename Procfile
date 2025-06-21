@@ -1,1 +1,1 @@
-web: python create_db_dir.py && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py populate_db && gunicorn ticketbooking.wsgi
+web: python create_db_dir.py && python manage.py migrate && python manage.py collectstatic --noinput && python manage.py populate_db && python manage.py load_images && gunicorn ticketbooking.wsgi

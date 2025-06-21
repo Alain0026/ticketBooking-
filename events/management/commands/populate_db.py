@@ -152,7 +152,7 @@ class Command(BaseCommand):
                     'city': event_data['city'],
                     'address': event_data['address'],
                     'max_capacity': event_data['max_capacity'],
-                    # Non impostiamo l'immagine qui, verrà gestita da Cloudinary
+                    'image': f'events/event{i}.jpg',  # Ripristiniamo l'immagine
                 }
             )
             
