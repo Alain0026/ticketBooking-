@@ -7,8 +7,8 @@ __pycache__/
 env/
 venv/
 .venv/
-media/
-
+#media/
+images/
 # Django
 *.log
 *.pot
