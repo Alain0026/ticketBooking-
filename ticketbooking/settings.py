@@ -38,16 +38,18 @@ CSRF_TRUSTED_ORIGINS = [
     'http://localhost:8000',
 ]
 
-# Applications Django
+# Applications Django - ORDRE CORRIGÉ
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
-    'cloudinary',
-    'cloudinary_storage',
+    
+    # Cloudinary - ORDRE IMPORTANT !
+    'cloudinary_storage',  # DOIT être avant staticfiles
     'django.contrib.staticfiles',
+    'cloudinary',  # APRÈS staticfiles
 
     # Tiers
     'rest_framework',
