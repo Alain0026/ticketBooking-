@@ -36,9 +36,13 @@ DATABASES = {
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
-# IMPORTANTE: Usa CompressedStaticFilesStorage invece di CompressedManifestStaticFilesStorage
-# per evitare errori con i file CSS dell'admin
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedStaticFilesStorage'
+# Configuration WhiteNoise sans compression pour éviter les erreurs
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.StaticFilesStorage'
+
+# Configuration WhiteNoise simplifiée
+WHITENOISE_USE_FINDERS = True
+WHITENOISE_AUTOREFRESH = True
+WHITENOISE_SKIP_COMPRESS_EXTENSIONS = ['jpg', 'jpeg', 'png', 'gif', 'webp', 'svg', 'map', 'css', 'js']
 
 # Cloudinary configuration
 cloudinary.config(
