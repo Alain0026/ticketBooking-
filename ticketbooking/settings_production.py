@@ -31,7 +31,9 @@ DATABASES = {
 }
 
 # Static files con WhiteNoise
-MIDDLEWARE.insert(1, 'whitenoise.middleware.WhiteNoiseMiddleware')
+# SUPPRIMÉ la ligne MIDDLEWARE.insert() car elle créait des doublons
+# Le middleware WhiteNoise est déjà dans settings.py
+
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # IMPORTANTE: Usa CompressedStaticFilesStorage invece di CompressedManifestStaticFilesStorage
@@ -46,9 +48,9 @@ cloudinary.config(
     secure = True
 )
 
-# IMPORTANTE: Aggiungi cloudinary_storage PRIMA di django.contrib.staticfiles
-INSTALLED_APPS.insert(0, 'cloudinary_storage')
-INSTALLED_APPS.insert(1, 'cloudinary')
+# SUPPRIMÉ - Ces lignes créaient des doublons car cloudinary est déjà dans settings.py
+# INSTALLED_APPS.insert(0, 'cloudinary_storage')
+# INSTALLED_APPS.insert(1, 'cloudinary')
 
 # Media files su Cloudinary
 DEFAULT_FILE_STORAGE = 'cloudinary_storage.storage.MediaCloudinaryStorage'
